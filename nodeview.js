@@ -63,10 +63,10 @@ treeview = function() {
             this._nodeBtn = this.$el.find('.node-text-btn:first');
             if(this.model==null){
                 this.model = new TreeNode();
-                this.model.on('stateChanged',function(){
-                    this.updateState();
-                }.bind(this));
             }
+            this.model.on('stateChanged',function(){
+                this.updateState();
+            }.bind(this));
         },
         updateState:function(){
             this.renderLoadingIcon();
@@ -137,10 +137,10 @@ treeview = function() {
 
             var states = model.getStates();
             if (states['opened'] === true) {
-                this._collapseBtn.$el.find('i').removeClass('fa-angle-right').addClass('fa-angle-down');
+                this._collapseBtn.find('i').removeClass('fa-angle-right').addClass('fa-angle-down');
                 this._childrenDiv.show();
             } else {
-                this._collapseBtn.$el.find('i').removeClass('fa-angle-down').addClass('fa-angle-right');
+                this._collapseBtn.find('i').removeClass('fa-angle-down').addClass('fa-angle-right');
                 this._childrenDiv.hide();
             }
         },

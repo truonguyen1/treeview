@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="bower_components/underscore/underscore-min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/backbone/backbone.js"></script>
+    <script src="nodeview.js"></script>
+    <script>
+        $(document).ready(function(){
+            var model = new treeview.TreeNode({'displayedText':'root'});
+            model.getChildren().add([new treeview.TreeNode({'displayedText':'child1'})]);
+            var view = new treeview.TreeView({'model':model});
+            view.render();
+            $('body').append(view.$el);
+        });
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
