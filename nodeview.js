@@ -35,24 +35,29 @@ treeview = function() {
     });
     var TEMPLATE = [
         '<div class="node-header">',
-        '<div class="node-header-left">',
-        '<div class="node-collapse-icon"><button class="btn btn-link"><i class="fa fa-plus"></i></button></div>',
-        '</div>',
-        '<div class="node-header-middle">',
-        '<button class="node-text-btn btn btn-link"><div class="node-display-text"></div></button>',
-        '</div>',
+            '<div class="node-header-left">',
+                '<div class="node-collapse-icon"><button class="btn btn-link"><i class="fa fa-plus"></i></button></div>',
+            '</div>',
+            '<div class="node-header-middle">',
+                '<button class="node-text-btn btn btn-link"><div class="node-display-text"></div></button>',
+            '</div>',
         '</div>',
         '<div class="node-body">',
-        '<div class="node-header-left"></div>',
-        '<div class="node-header-middle">',
-        '<div class="node-loading">Loading....</div>',
-        '<div class="node-children"></div>',
-        '</div>',
+            '<div class="node-header-left"></div>',
+            '<div class="node-header-middle">',
+                '<div class="node-loading">Loading....</div>',
+                '<div class="node-children"></div>',
+            '</div>',
         '</div>'
     ].join("");
+    var _types = {};
+    var _collapseIcon = 'glyphicon glyphicon-menu-down';
+    var _expandIcon = 'glyphicon glyphicon-menu-right';
     var NodeView = Backbone.View.extend({
         className: "node-view",
-        initialize:function(){
+        initialize:function(options){
+            var defaults = {
+            };
             this._childrenViews = [];
             var html = _.template(TEMPLATE)({});
             this.$el.html(html);
@@ -67,6 +72,7 @@ treeview = function() {
             this.model.on('stateChanged',function(){
                 this.updateState();
             }.bind(this));
+            this.options = _.assign(defaults,options);
         },
         updateState:function(){
             this.renderLoadingIcon();
@@ -107,6 +113,14 @@ treeview = function() {
                 model.onSelect({'src': model});
             });
         },
+        updateType:function(){
+            var typeName = this.model.get('type');
+            var type = _types[typeName];
+            if(type==null)return;
+
+
+
+        },
         renderSelection : function () {
             var states = this.model.getStates();
             if (states['loading'] === true) {
@@ -137,10 +151,10 @@ treeview = function() {
 
             var states = model.getStates();
             if (states['opened'] === true) {
-                this._collapseBtn.find('i').removeClass('fa-angle-right').addClass('fa-angle-down');
+                this._collapseBtn.find('i').removeClass(_expandIcon).addClass(_collapseIcon);
                 this._childrenDiv.show();
             } else {
-                this._collapseBtn.find('i').removeClass('fa-angle-down').addClass('fa-angle-right');
+                this._collapseBtn.find('i').removeClass(_collapseIcon).addClass(_expandIcon);
                 this._childrenDiv.hide();
             }
         },
@@ -165,8 +179,22 @@ treeview = function() {
             this.renderChildren();
             this.updateState();
             this.attachEvents();
+            this.updateType();
         }
     });
+    NodeView.addType = function(name,type){
+        _types[name] = type;
+    };
+    NodeView.getType = function(name){
+        return _types[name];
+    };
+    NodeView.setCollapseIconClass = function(icon){
+        _collapseIcon = icon;
+    };
+    NodeView.setExpandIconClass = function(icon){
+        _expandIcon = icon;
+    };
+
     var TreeView = NodeView.extend({
         onSelect:function(args){
             this._selected = args['src'];
