@@ -5,14 +5,16 @@
     <title></title>
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="tree.css" rel="stylesheet" type="text/css"/>
-    <script src="bower_components/underscore/underscore-min.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="bower_components/backbone/backbone.js"></script>
     <script src="nodeview.js"></script>
     <script>
         $(document).ready(function(){
-            var model = new treeview.TreeNode({'displayedText':'root'});
-            model.getChildren().add([new treeview.TreeNode({'displayedText':'child1'})]);
+            var model = new treeview.TreeNode({
+                'text':'root',
+                'children':[
+
+                ]
+            });
             var view = new treeview.TreeView({'model':model});
             view.render();
             $('body').append(view.$el);

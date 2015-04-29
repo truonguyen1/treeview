@@ -1,4 +1,22 @@
 treeview = function() {
+    Function.prototype.inheritsFrom = function(parentClassOrObject ){
+        if ( parentClassOrObject.constructor == Function )
+        {
+            //Normal Inheritance
+            this.prototype = new parentClassOrObject;
+            this.prototype.constructor = this;
+            this.prototype.parent = parentClassOrObject.prototype;
+        }
+        else
+        {
+            //Pure Virtual Inheritance
+            this.prototype = parentClassOrObject;
+            this.prototype.constructor = this;
+            this.prototype.parent = parentClassOrObject;
+        }
+        return this;
+    }
+
     var Subscribers = function(){
         this.handlers = {};
     };
@@ -31,7 +49,9 @@ treeview = function() {
     var CompositeNode = function(){
         this.parent = null;
         this.children = [];
+        Subscribers.call(this);
     };
+    CompositeNode.inheritsFrom(Subscribers);
     CompositeNode.prototype.getParent =function(){
         return this.parent;
     };
@@ -57,6 +77,11 @@ treeview = function() {
         return this.children[index];
     };
     CompositeNode.prototype.add =function(child,options){
+        if(child ==undefined)return;
+        var defaults = {
+            'silent':false
+        };
+        options = $.extend(defaults,options);
         var suppress = options['silent'];
         if($.isArray(child)){
             for(var i=0;i<child.length;i++){
@@ -66,8 +91,8 @@ treeview = function() {
             this.fire('childrenAdded',args);
             return;
         }
-        if(!(child instanceof BaseNode))
-            throw "expect BaseNode";
+        if(!(child instanceof CompositeNode))
+            throw "expect CompositeNode";
         child.parent = this;
         this.children.push(child);
         if(!suppress) {
@@ -78,7 +103,6 @@ treeview = function() {
     CompositeNode.prototype.getParent =function(){
         return this.parent;
     };
-    $.extend(Subscribers.prototype,CompositeNode.prototype);
 
     function updateParents(options){
         for(var name in options){
@@ -90,15 +114,25 @@ treeview = function() {
 
     var BaseNode = function(options){
         var defaults = {};
-        this.options = $.extend(defaults,options);
+        var options = $.extend(defaults,options);
+        var children = options['children'];
+        delete options['children'];
         this.changes = {};
+        this.options = options;
         updateParents(this.options);
+        CompositeNode.call(this,options);
+        this.add(children);
     };
-
+    BaseNode.inheritsFrom(CompositeNode);
     BaseNode.prototype.get =function(option){
         return this.options[option];
     };
     BaseNode.prototype.set =function(option,val,options){
+        var defaults = {
+            'silent':false
+        };
+        options = $.extend(defaults,options)
+
         var old = this.options[option];
         if(old===val)return;
         if(old instanceof BaseNode){
@@ -113,7 +147,6 @@ treeview = function() {
         if(!options['silent'])
             this.fire('settingChanged',args);
     };
-    $.extend(CompositeNode.prototype,BaseNode.prototype);
 
     var TreeNode = function(options){
         this.states = new BaseNode({
@@ -124,6 +157,7 @@ treeview = function() {
         this.states.parent = this;
         BaseNode.call(this, options);
     };
+    TreeNode.inheritsFrom(BaseNode);
     TreeNode.prototype.setState=function(state,val){
         this.states.set(state,val,{'silent':true});
         var changedArgs = {'state': state, 'value': val};
@@ -140,7 +174,6 @@ treeview = function() {
             this.getParent().onSelect(args);
         }
     }
-    $.extend(TreeNode.prototype,BaseNode.prototype);
 
     var TEMPLATE = [
         '<div class="node-header">',
@@ -164,6 +197,9 @@ treeview = function() {
     var _expandIcon = 'glyphicon glyphicon-menu-right';
 
     var NodeView = function(options){
+        var defaults = {};
+        options = $.extend(defaults,options);
+        CompositeNode.call(this,options);
         this.$el = $('<div class="node-view"></div>').append(TEMPLATE);
         this._collapseBtn = this.$el.find('.node-collapse-icon .btn');
         this._displayTextDiv = this.$el.find('.node-display-text');
@@ -177,9 +213,8 @@ treeview = function() {
         this.getModel().on('stateChanged',function(){
             this.updateState();
         }.bind(this));
-
     };
-    $.extend(CompositeNode.prototype,NodeView.prototype);
+    NodeView.inheritsFrom(CompositeNode);
     NodeView.prototype.getModel = function(){
         return this.options['model'];
     };
@@ -209,8 +244,8 @@ treeview = function() {
     NodeView.prototype.createChildNodeView = function (model) {
         return new NodeView({'model': model});
     };
-    NodeView.prototype.renderDisplayedText = function () {
-        var text = this.getModel().get('displayedText');
+    NodeView.prototype.renderText = function () {
+        var text = this.getModel().get('text');
         this._displayTextDiv.html(text);
     };
     NodeView.prototype.attachEvents = function () {
@@ -267,11 +302,10 @@ treeview = function() {
     NodeView.prototype.renderChildren = function () {
         this.destroyChildren();
         var model = this.getModel();
-        var children = model.getChildren();
         var leaf = model.get('isLeaf');
         if (leaf === true) return;
-        for (var i = 0; i < children.length; i++) {
-            var view = this.createChildNodeView(children.at(i));
+        for (var i = 0; i < model.getChildren().length; i++) {
+            var view = this.createChildNodeView(model.at(i));
             view.render();
             this._childrenDiv.append(view.$el);
             this.add(view);
@@ -281,7 +315,7 @@ treeview = function() {
         }
     };
     NodeView.prototype.render = function () {
-        this.renderDisplayedText();
+        this.renderText();
         this.renderChildren();
         this.updateState();
         this.attachEvents();
@@ -300,11 +334,13 @@ treeview = function() {
         _expandIcon = icon;
     };
 
-    var TreeView = NodeView.extend({
-        onSelect:function(args){
-            this._selected = args['src'];
-        }
-    });
+    var TreeView = function(options) {
+        NodeView.call(this,options);
+    };
+    TreeView.prototype.onSelect = function(args) {
+        this._selected = args['src'];
+    };
+    TreeView.inheritsFrom(NodeView);
     return {
         TreeNode:TreeNode,
         NodeView:NodeView,
