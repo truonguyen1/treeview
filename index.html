@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="bower_components/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="tree.css" rel="stylesheet" type="text/css"/>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="nodeview.js"></script>
+    <script>
+        $(document).ready(function(){
+            var model = new treeview.TreeNode({
+                'text':'root',
+                'children':[]
+            });
+            var view = new treeview.TreeView({'model':model});
+            view.render();
+
+            view.on('nodeSelected',function(args){
+                var selected = args['selected'].getModel();
+                selected.load(function(callBack){
+                    setTimeout(function(){
+                        callBack();
+                        selected.add([
+                            new treeview.TreeNode({'text':'child1'}),
+                            new treeview.TreeNode({'text':'child2'}),
+                            new treeview.TreeNode({'text':'child3'}),
+                            new treeview.TreeNode({'text':'child4'})
+                        ]);
+                        selected.setState('opened',true);
+                    },5000);
+                })
+
+            });
+            $('body').append(view.$el);
+        });
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
