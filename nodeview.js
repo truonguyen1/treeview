@@ -183,8 +183,9 @@ treeview = function() {
                 '<div class="node-collapse-icon"><button class="btn btn-link"><i class="fa fa-plus"></i></button></div>',
             '</div>',
             '<div class="node-header-middle">',
-                '<button class="node-text-btn btn btn-link"><div class="node-display-text"></div></button>',
+                '<span class="node-icon"></span><button class="node-text-btn btn btn-link"><div class="node-display-text"></div></button>',
             '</div>',
+            '<div class="node-header-right"></div>',
         '</div>',
         '<div class="node-body">',
             '<div class="node-header-left"></div>',
@@ -194,7 +195,11 @@ treeview = function() {
             '</div>',
         '</div>'
     ].join("");
-    var _types = {};
+    var _types = {
+        'default':{
+            'icon':false
+        }
+    };
     var _collapseIcon = 'glyphicon glyphicon-menu-down';
     var _expandIcon = 'glyphicon glyphicon-menu-right';
     var _loadingHtml = '<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>';
@@ -206,6 +211,8 @@ treeview = function() {
         this.$el = $('<div class="node-view"></div>').append(TEMPLATE);
         this._collapseBtn = this.$el.find('.node-collapse-icon .btn');
         this._displayTextDiv = this.$el.find('.node-display-text');
+        this._nodeIcon = this.$el.find('.node-icon:first');
+        this._headerMiddleDiv = this.$el.find('.node-header-middle:first');
         this._loadingDiv = this.$el.find('.node-loading');
         this._childrenDiv = this.$el.find('.node-children:first');
         this._nodeBtn = this.$el.find('.node-text-btn:first');
@@ -255,10 +262,6 @@ treeview = function() {
     };
     NodeView.prototype.createChildNodeView = function (model) {
         return new NodeView({'model': model});
-    };
-    NodeView.prototype.renderText = function () {
-        var text = this.getModel().get('text');
-        this._displayTextDiv.html(text);
     };
     NodeView.prototype.attachEvents = function () {
         var model = this.getModel();
@@ -311,14 +314,25 @@ treeview = function() {
         var states = model.getStates();
         if (states.get('opened') === true) {
             this._collapseBtn.find('i').removeClass(_expandIcon).addClass(_collapseIcon);
-            this._childrenDiv.show();
+            this._childrenDiv.show("slow");
         } else {
             this._collapseBtn.find('i').removeClass(_collapseIcon).addClass(_expandIcon);
-            this._childrenDiv.hide();
+            this._childrenDiv.hide("slow");
         }
     };
-    NodeView.prototype.setLoading = function(html){
-        NodeView.setLoading(html);
+    NodeView.prototype.renderHeaderNode =function(){
+        var model = this.getModel();
+        var type = _types[model.get('type')];
+        if(type==null)
+            type = _types['default'];
+        if($.isFunction(type['render'])){
+            type['render'](this._headerMiddleDiv,model);
+            return;
+        }
+        var icon = type['icon'];
+        if(icon)this._nodeIcon.addClass(icon);
+        var text = model.get('text');
+        this._displayTextDiv.html(text);
     };
     NodeView.prototype.renderChildren = function () {
         this.destroyChildren();
@@ -335,26 +349,31 @@ treeview = function() {
             //this._childrenDiv.html('<span class="node-empty-text">(empty)</span>');
         }
     };
+    NodeView.prototype.renderRightControls = function () {
+
+
+    };
     NodeView.prototype.render = function () {
-        this.renderText();
+        this.renderHeaderNode();
+        this.renderRightControls();
         this.renderChildren();
         this.updateState();
         this.attachEvents();
         this.updateType();
     };
-    NodeView.addType = function(name,type){
+    NodeView.prototype.addType = function(name,type){
         _types[name] = type;
     };
-    NodeView.getType = function(name){
+    NodeView.prototype.getType = function(name){
         return _types[name];
     };
-    NodeView.setCollapseIconClass = function(icon){
+    NodeView.prototype.setCollapseIconClass = function(icon){
         _collapseIcon = icon;
     };
-    NodeView.setLoading = function(html){
+    NodeView.prototype.setLoading = function(html){
         _loadingHtml = html;
     };
-    NodeView.setExpandIconClass = function(icon){
+    NodeView.prototype.setExpandIconClass = function(icon){
         _expandIcon = icon;
     };
 

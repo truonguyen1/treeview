@@ -12,9 +12,12 @@
         $(document).ready(function(){
             var model = new treeview.TreeNode({
                 'text':'root',
-                'children':[]
+                'children':[],
+                'type':'folder'
             });
             var view = new treeview.TreeView({'model':model});
+            view.addType('folder',{'icon':'glyphicon glyphicon-tags'});
+            view.addType('file',{'icon':'glyphicon glyphicon-file'});
             view.render();
 
             view.on('nodeSelected',function(args){
@@ -23,23 +26,28 @@
                     setTimeout(function(){
                         callBack();
                         selected.add([
-                            new treeview.TreeNode({'text':'child1'}),
-                            new treeview.TreeNode({'text':'child2'}),
-                            new treeview.TreeNode({'text':'child3'}),
-                            new treeview.TreeNode({'text':'child4'})
+                            new treeview.TreeNode({'text':'child1','type':'folder'}),
+                            new treeview.TreeNode({'text':'child2','type':'folder'}),
+                            new treeview.TreeNode({'text':'child3','type':'file'}),
+                            new treeview.TreeNode({'text':'child4','type':'file'})
                         ]);
                         selected.setState('opened',true);
                     },5000);
                 })
 
             });
-            $('body').append(view.$el);
+            $('.tree').append(view.$el);
         });
 
 
     </script>
+    <style>
+        .tree{
+            width:200px;
+        }
+    </style>
 </head>
 <body>
-
+    <div class="tree"></div>
 </body>
 </html>
