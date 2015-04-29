@@ -41,7 +41,7 @@ treeview = function() {
     Subscribers.prototype.fire =function(eventName,args){
         var handle = this.handlers[eventName];
         if(handle==null) return;
-        handle.fireWith(this,args);
+        handle.fireWith(this,[args]);
     };
 
 
@@ -96,8 +96,8 @@ treeview = function() {
         child.parent = this;
         this.children.push(child);
         if(!suppress) {
-            var args = {'child': child};
-            this.fire('childAdded', args);
+            var args = {'children': [child]};
+            this.fire('childrenAdded', args);
         }
     };
     CompositeNode.prototype.getParent =function(){
@@ -163,17 +163,19 @@ treeview = function() {
         var changedArgs = {'state': state, 'value': val};
         this.fire('stateChanged',changedArgs);
     };
+    TreeNode.prototype.load = function(fn){
+        this.setState('loading',true);
+        var instance = this;
+        fn(function(result){
+            instance.setState('loading',false);
+        });
+    };
     TreeNode.prototype.toggleChildren = function(){
         this.setState('opened', !this.states.get('opened'));
-    },
+    };
     TreeNode.prototype.getStates = function () {
         return this.states;
-    },
-    TreeNode.prototype.onSelect= function(args){
-        if (this.getParent() != null && this.getParent() instanceof TreeNode) {
-            this.getParent().onSelect(args);
-        }
-    }
+    };
 
     var TEMPLATE = [
         '<div class="node-header">',
@@ -187,7 +189,7 @@ treeview = function() {
         '<div class="node-body">',
             '<div class="node-header-left"></div>',
             '<div class="node-header-middle">',
-                '<div class="node-loading">Loading....</div>',
+                '<div class="node-loading"></div>',
                 '<div class="node-children"></div>',
             '</div>',
         '</div>'
@@ -195,6 +197,7 @@ treeview = function() {
     var _types = {};
     var _collapseIcon = 'glyphicon glyphicon-menu-down';
     var _expandIcon = 'glyphicon glyphicon-menu-right';
+    var _loadingHtml = '<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>';
 
     var NodeView = function(options){
         var defaults = {};
@@ -212,6 +215,15 @@ treeview = function() {
         }
         this.getModel().on('stateChanged',function(){
             this.updateState();
+        }.bind(this));
+        this.getModel().on('childrenAdded',function(){
+           this.renderChildren();
+        }.bind(this));
+        this.getModel().on('childrenRemoved',function(){
+            this.renderChildren();
+        }.bind(this));
+        this.getModel().on('childrenCleared',function(){
+            this.destroyChildren();
         }.bind(this));
     };
     NodeView.inheritsFrom(CompositeNode);
@@ -254,8 +266,13 @@ treeview = function() {
             model.toggleChildren();
         });
         this._nodeBtn.on('click', function () {
-            model.onSelect({'src': model});
-        });
+            this.onSelect({'selected': this});
+        }.bind(this));
+    };
+    NodeView.prototype.onSelect =function(args){
+        if(this.getParent()!=null){
+            this.getParent().onSelect(args);
+        }
     };
     NodeView.prototype.updateType=function(){
         var typeName = this.getModel().get('type');
@@ -274,6 +291,7 @@ treeview = function() {
     };
     NodeView.prototype.renderLoadingIcon = function () {
         var states = this.getModel().getStates();
+        this._loadingDiv.html(_loadingHtml);
         if (states.get('loading') === true) {
             this._loadingDiv.show();
             this._childrenDiv.hide();
@@ -299,6 +317,9 @@ treeview = function() {
             this._childrenDiv.hide();
         }
     };
+    NodeView.prototype.setLoading = function(html){
+        NodeView.setLoading(html);
+    };
     NodeView.prototype.renderChildren = function () {
         this.destroyChildren();
         var model = this.getModel();
@@ -311,7 +332,7 @@ treeview = function() {
             this.add(view);
         }
         if (this.getChildren().length == 0) {
-            this._childrenDiv.html('<span class="node-empty-text">(empty)</span>');
+            //this._childrenDiv.html('<span class="node-empty-text">(empty)</span>');
         }
     };
     NodeView.prototype.render = function () {
@@ -330,6 +351,9 @@ treeview = function() {
     NodeView.setCollapseIconClass = function(icon){
         _collapseIcon = icon;
     };
+    NodeView.setLoading = function(html){
+        _loadingHtml = html;
+    };
     NodeView.setExpandIconClass = function(icon){
         _expandIcon = icon;
     };
@@ -337,10 +361,12 @@ treeview = function() {
     var TreeView = function(options) {
         NodeView.call(this,options);
     };
-    TreeView.prototype.onSelect = function(args) {
-        this._selected = args['src'];
-    };
     TreeView.inheritsFrom(NodeView);
+    TreeView.prototype.onSelect = function(args) {
+        this._selected = args['selected'];
+        this.fire('nodeSelected',{'selected':this._selected});
+    };
+
     return {
         TreeNode:TreeNode,
         NodeView:NodeView,
