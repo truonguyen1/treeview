@@ -28,16 +28,23 @@
   height: 15px;
 }
 .node-view .btn-link {
-  padding: 5px;
+  padding: 2px;
   outline: none;
 }
 .node-view .node-left {
   width: 30px;
 }
 .node-view .node-left .node-collapse-icon {
-  width: 30px;
+  width: 100%;
+  height: 100%;
+}
+.node-view .node-left .node-collapse-icon .btn-link {
+  width: 100%;
+  height: 100%;
+}
+.node-view .node-header {
   height: 30px;
-  border: 1px dotted #67b2dd;
+  overflow: hidden;
 }
 .node-view .node-header,
 .node-view .node-body {
