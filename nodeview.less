@@ -1,5 +1,5 @@
 @tree-node-height:30px;
-
+@tree-node-dotted:1px dotted #67b2dd;
 .node-view{
   position:relative;
   &::before{
@@ -10,8 +10,22 @@
     left: -@tree-node-height/2;
     width:@tree-node-height/2;
     height: 0;
-    border-top: 1px dotted #67b2dd;
+    border-top: @tree-node-dotted;
     z-index: 1;
+  }
+  &::after{
+    display: inline-block;
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: -@tree-node-height/2;
+    width: 0px;
+    height: @tree-node-height;
+    border-left: @tree-node-dotted;
+    z-index: 1;
+  }
+  &:last-child::after{
+    height:@tree-node-height/2;
   }
   .btn-link{
     padding:5px;
@@ -20,7 +34,9 @@
   .node-left{
     width:@tree-node-height;
     .node-collapse-icon{
-//      border:1px solid blue;
+      width:@tree-node-height;
+      height:@tree-node-height;
+      border:@tree-node-dotted;
     }
   }
   .node-header,.node-body{
@@ -36,30 +52,7 @@
   .node-left,.node-middle,.node-right{
     display:table-cell;
   }
-  .node-middle{
-//    overflow: hidden;
-//    text-overflow: ellipsis;
-//    white-space: nowrap;
-  }
-  .node-header-left{
-//    border:1px dotted blue;
-  }
   .node-right{
     width:0px;
-  }
-  .node-body{
-    >.node-body-left {
-      &::before {
-        display: inline-block;
-        content: "";
-        position: absolute;
-        top: 0px;
-        left: @tree-node-height/2;
-        width: 0px;
-        bottom: @tree-node-height/2;
-        border-left: 1px dotted #67b2dd;
-        z-index: 1;
-      }
-    }
   }
 }
