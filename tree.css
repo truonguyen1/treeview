@@ -19,11 +19,12 @@
   top: 0px;
   left: -15px;
   width: 0px;
-  height: 30px;
+  bottom: 0px;
   border-left: 1px dotted #67b2dd;
   z-index: 1;
 }
 .node-view:last-child::after {
+  bottom: auto;
   height: 15px;
 }
 .node-view .btn-link {

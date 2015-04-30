@@ -20,11 +20,12 @@
     top: 0px;
     left: -@tree-node-height/2;
     width: 0px;
-    height: @tree-node-height;
+    bottom: 0px;
     border-left: @tree-node-dotted;
     z-index: 1;
   }
   &:last-child::after{
+    bottom:auto;
     height:@tree-node-height/2;
   }
   .btn-link{
