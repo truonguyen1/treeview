@@ -1,8 +1,22 @@
+.node-view {
+  position: relative;
+}
+.node-view::before {
+  display: inline-block;
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: -15px;
+  width: 15px;
+  height: 0;
+  border-top: 1px dotted #67b2dd;
+  z-index: 1;
+}
 .node-view .btn-link {
   padding: 5px;
   outline: none;
 }
-.node-view .node-header-left {
+.node-view .node-left {
   width: 30px;
 }
 .node-view .node-header,
@@ -10,16 +24,33 @@
   display: table;
   width: 100%;
   table-layout: fixed;
+  position: relative;
+  border-collapse: collapse;
 }
-.node-view .node-header-left,
-.node-view .node-header-middle,
-.node-view .node-header-right {
+.node-view .node-children {
+  position: relative;
+}
+.node-view .node-left,
+.node-view .node-middle,
+.node-view .node-right {
   display: table-cell;
 }
-.node-view .node-header-middle {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.node-view .node-header-left {
+  border: 1px dotted blue;
+}
+.node-view .node-right {
+  width: 0px;
+}
+.node-view .node-body > .node-body-left::before {
+  display: inline-block;
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 15px;
+  width: 0px;
+  bottom: 15px;
+  border-left: 1px dotted #67b2dd;
+  z-index: 1;
 }
 .spinner {
   margin: 0px;
