@@ -306,17 +306,26 @@ treeview = function() {
     NodeView.prototype.renderCollapsibleIcon = function () {
         var model = this.getModel();
         if (model.get('isLeaf') === true) {
-            this._collapseBtn.hide();
+            this._collapseBtn.parents('.node-left:first').hide();
             this._childrenDiv.hide();
             return;
         }
 
         var states = model.getStates();
+        var expandIcon = _expandIcon;
+        var collapseIcon = _collapseIcon;
+        var model = this.getModel();
+        var type = _types[model.get('type')];
+        if(type!=null && type['collapseIcon']!=null &&type['expandIcon']!=null ){
+            expandIcon = type['collapseIcon'];
+            collapseIcon = type['expandIcon'];
+        }
+
         if (states.get('opened') === true) {
-            this._collapseBtn.find('i').removeClass(_expandIcon).addClass(_collapseIcon);
+            this._collapseBtn.find('i').removeClass(expandIcon).addClass(collapseIcon);
             this._childrenDiv.show("slow");
         } else {
-            this._collapseBtn.find('i').removeClass(_collapseIcon).addClass(_expandIcon);
+            this._collapseBtn.find('i').removeClass(collapseIcon).addClass(expandIcon);
             this._childrenDiv.hide("slow");
         }
     };

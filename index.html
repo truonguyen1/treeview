@@ -16,7 +16,7 @@
                 'type':'folder'
             });
             var view = new treeview.TreeView({'model':model});
-            view.addType('folder',{'icon':'glyphicon glyphicon-tags'});
+            view.addType('folder',{'icon':'','expandIcon':'glyphicon glyphicon-folder-open','collapseIcon':'glyphicon glyphicon-folder-close'});
             view.addType('file',{'icon':'glyphicon glyphicon-file'});
             view.render();
 
@@ -28,8 +28,8 @@
                         selected.add([
                             new treeview.TreeNode({'text':'child1','type':'folder'}),
                             new treeview.TreeNode({'text':'child2','type':'folder'}),
-                            new treeview.TreeNode({'text':'child3','type':'file'}),
-                            new treeview.TreeNode({'text':'child4','type':'file'})
+                            new treeview.TreeNode({'text':'child3','type':'file','isLeaf':true}),
+                            new treeview.TreeNode({'text':'child4','type':'folder'})
                         ]);
                         selected.setState('opened',true);
                     },5000);

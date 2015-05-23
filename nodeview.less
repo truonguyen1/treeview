@@ -1,5 +1,5 @@
-@tree-node-height:30px;
-@tree-node-dotted:1px dotted #67b2dd;
+@tree-node-height:20px;
+@tree-node-dotted:2px solid #67b2dd;
 .node-view{
   position:relative;
   &::before{
@@ -60,6 +60,12 @@
   }
   .node-left,.node-middle,.node-right{
     display:table-cell;
+    vertical-align: middle;
+  }
+  .node-middle{
+    .node-icon{
+      margin-right:5px;
+    }
   }
   .node-right{
     width:0px;
