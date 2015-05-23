@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="bower_components/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="tree.css" rel="stylesheet" type="text/css"/>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="nodeview.js"></script>
+    <script>
+        $(document).ready(function(){
+            var model = new treeview.TreeNode({
+                'text':'root',
+                'children':[],
+                'type':'folder'
+            });
+            var view = new treeview.TreeView({'model':model});
+            view.addType('folder',{'icon':'','expandIcon':'glyphicon glyphicon-folder-open','collapseIcon':'glyphicon glyphicon-folder-close'});
+            view.addType('file',{'icon':'glyphicon glyphicon-file'});
+            view.render();
+
+            view.on('nodeSelected',function(args){
+                var selected = args['selected'].getModel();
+                selected.load(function(callBack){
+                    setTimeout(function(){
+                        callBack();
+                        selected.add([
+                            new treeview.TreeNode({'text':'child1','type':'folder'}),
+                            new treeview.TreeNode({'text':'child2','type':'folder'}),
+                            new treeview.TreeNode({'text':'child3','type':'file','isLeaf':true}),
+                            new treeview.TreeNode({'text':'child4','type':'folder'})
+                        ]);
+                        selected.setState('opened',true);
+                    },5000);
+                })
+
+            });
+            $('.tree').append(view.$el);
+        });
+
+
+    </script>
+    <style>
+        .tree{
+            width:200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tree"></div>
+</body>
+</html>
